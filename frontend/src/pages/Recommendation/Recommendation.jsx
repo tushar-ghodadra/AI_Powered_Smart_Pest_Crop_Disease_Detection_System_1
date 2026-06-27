@@ -1,130 +1,112 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+
+import { Page, PageHeader } from "../../components/ui/Page";
+import { Card, CardBody, CardHeader } from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import Button from "../../components/ui/Button";
+import Icon from "../../components/ui/Icon";
+import EmptyState from "../../components/ui/EmptyState";
+import Reveal from "../../components/ui/Reveal";
+
+const severityTone = (severity) =>
+  severity === "High"
+    ? "danger"
+    : severity === "Medium"
+    ? "warning"
+    : "success";
+
+const sections = [
+  { key: "description", title: "Description", icon: "fileText" },
+  { key: "treatment", title: "Treatment", icon: "shield" },
+  { key: "organic_treatment", title: "Organic Treatment", icon: "leaf" },
+  { key: "chemical_treatment", title: "Chemical Treatment", icon: "beaker" },
+  { key: "preventive_measures", title: "Preventive Measures", icon: "shield" },
+  { key: "monitoring_actions", title: "Monitoring Actions", icon: "eye" },
+];
 
 const Recommendation = () => {
   const location = useLocation();
 
   const recommendation =
     location.state ||
-    JSON.parse(
-      sessionStorage.getItem("recommendation")
-    );
+    JSON.parse(sessionStorage.getItem("recommendation"));
 
   if (!recommendation) {
     return (
-      <div className="p-10 text-center">
-        No recommendation available.
-      </div>
+      <Page width="md">
+        <Card>
+          <EmptyState
+            icon="clipboard"
+            title="No recommendation available"
+            description="Run a detection to generate a tailored treatment recommendation."
+            action={
+              <Button as={Link} to="/upload">
+                <Icon name="upload" className="h-4 w-4" />
+                Go to Upload
+              </Button>
+            }
+          />
+        </Card>
+      </Page>
     );
   }
 
-  const severityColor =
-    recommendation.severity === "High"
-      ? "bg-red-100 text-red-700"
-      : recommendation.severity === "Medium"
-      ? "bg-yellow-100 text-yellow-700"
-      : "bg-green-100 text-green-700";
-
   return (
-    <div className="min-h-screen bg-gray-100 p-6 md:p-10">
+    <Page width="lg">
+      <PageHeader eyebrow="Treatment" title="Disease recommendation" />
 
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        Disease Recommendation
-      </h1>
+      <div className="space-y-6">
+        {/* Summary */}
+        <Card>
+          <CardBody className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <Icon name="leaf" className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                  Disease
+                </p>
+                <h2 className="mt-0.5 text-xl font-bold tracking-tight text-neutral-900">
+                  {recommendation.disease_name}
+                </h2>
+              </div>
+            </div>
+            <Badge
+              tone={severityTone(recommendation.severity)}
+              icon={<Icon name="alert" className="h-3.5 w-3.5" />}
+              className="self-start px-3 py-1.5 text-sm sm:self-center"
+            >
+              {recommendation.severity} severity
+            </Badge>
+          </CardBody>
+        </Card>
 
-      <div className="max-w-5xl mx-auto space-y-4">
-
-        {/* Disease Name */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Disease Name
-          </h2>
-
-          <p className="text-xl text-green-700 font-semibold">
-            {recommendation.disease_name}
-          </p>
+        {/* Detail sections */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {sections.map((section, index) => (
+            <Reveal key={section.key} delay={index * 90}>
+              <Card className="group h-full transition-shadow duration-300 hover:shadow-card">
+                <CardHeader
+                  icon={
+                    <Icon
+                      name={section.icon}
+                      className="h-5 w-5 transition-transform duration-300 group-hover:scale-110"
+                    />
+                  }
+                  title={section.title}
+                />
+                <CardBody>
+                  <p className="text-sm leading-relaxed text-neutral-700">
+                    {recommendation[section.key] || "—"}
+                  </p>
+                </CardBody>
+              </Card>
+            </Reveal>
+          ))}
         </div>
-
-        {/* Severity */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Severity
-          </h2>
-
-          <span
-            className={`px-4 py-2 rounded-full font-semibold ${severityColor}`}
-          >
-            {recommendation.severity}
-          </span>
-        </div>
-
-        {/* Description */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Description
-          </h2>
-
-          <p>
-            {recommendation.description}
-          </p>
-        </div>
-
-        {/* Treatment */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Treatment
-          </h2>
-
-          <p>
-            {recommendation.treatment}
-          </p>
-        </div>
-
-        {/* Organic Treatment */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Organic Treatment
-          </h2>
-
-          <p>
-            {recommendation.organic_treatment}
-          </p>
-        </div>
-
-        {/* Chemical Treatment */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Chemical Treatment
-          </h2>
-
-          <p>
-            {recommendation.chemical_treatment}
-          </p>
-        </div>
-
-        {/* Preventive Measures */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Preventive Measures
-          </h2>
-
-          <p>
-            {recommendation.preventive_measures}
-          </p>
-        </div>
-
-        {/* Monitoring Actions */}
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="font-bold text-lg mb-2">
-            Monitoring Actions
-          </h2>
-
-          <p>
-            {recommendation.monitoring_actions}
-          </p>
-        </div>
-
       </div>
-    </div>
+    </Page>
   );
 };
 

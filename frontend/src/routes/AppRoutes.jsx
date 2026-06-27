@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
@@ -10,8 +10,13 @@ import ProtectedRoute from "./ProtectedRoute";
 import History from "../pages/History/History";
 
 const AppRoutes = () => {
+  const location = useLocation();
+
   return (
-    <Routes>
+    // Keying on the path remounts the page subtree per navigation, which
+    // retriggers each page's entrance animation — a smooth cross-page feel.
+    <div key={location.pathname} className="animate-page">
+      <Routes location={location}>
       <Route path="/" element={<Home />} />
 
       <Route path="/login" element={<Login />} />
@@ -36,7 +41,8 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-    </Routes>
+      </Routes>
+    </div>
   );
 };
 
